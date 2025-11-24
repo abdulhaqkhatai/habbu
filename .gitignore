@@ -1,0 +1,39 @@
+## Node
+node_modules/
+
+# Vite / build
+dist/
+build/
+.vite/
+.cache/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Environment
+.env
+.env.*.local
+server/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Test runner
+jest/cache/
+
+# Misc
+.sass-cache/
+*.tgz
