@@ -13,23 +13,20 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-const PORT = process.env.PORT || 4000
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/marksdb'
 
 async function connectDB() {
   try {
-    // First try Atlas connection
     await mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000 // fail fast if Atlas not reachable
+      serverSelectionTimeoutMS: 5000
     })
-    console.log('MongoDB Atlas connected')
+    console.log('MongoDB connected')
     return true
   } catch (err) {
     console.log('Atlas connection failed, falling back to in-memory MongoDB...')
     try {
-      // Start in-memory MongoDB
       const mongod = await MongoMemoryServer.create()
       const uri = mongod.getUri()
       await mongoose.connect(uri, {
@@ -46,16 +43,35 @@ async function connectDB() {
   }
 }
 
-const { start: startApp } = require('./app')
-
-if (require.main === module) {
-  // running directly -> start server and listen (local dev)
-  startApp()
-    .then(appInstance => {
-      appInstance.listen(PORT, () => console.log(`Server running on port ${PORT}`))
-    })
-    .catch(err => {
-      console.error('Failed to start server:', err)
-      process.exit(1)
-    })
+async function seedUsersIfNeeded() {
+  try {
+    const count = await User.countDocuments()
+    if (count === 0) {
+      const pass1 = await bcrypt.hash('ahkk', 10)
+      const pass2 = await bcrypt.hash('habbu', 10)
+      await User.create({ username: 'admin', password: pass1, role: 'teacher' })
+      await User.create({ username: 'student', password: pass2, role: 'student' })
+      console.log('Seeded default users: admin/student')
+    }
+  } catch (err) {
+    console.error('User seed error', err)
+  }
 }
+
+async function start() {
+  const ok = await connectDB()
+  if (!ok) {
+    throw new Error('Could not connect to any MongoDB instance')
+  }
+
+  // Register routes after DB is ready
+  app.use('/api/auth', authRoutes)
+  app.use('/api/tests', testsRoutes)
+  app.get('/', (req, res) => res.send({ ok: true }))
+
+  await seedUsersIfNeeded()
+
+  return app
+}
+
+module.exports = { app, start }
