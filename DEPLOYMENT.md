@@ -1,6 +1,9 @@
 # Deployment guide
 
 This repository contains a Vite React frontend (root) and a Node/Express backend in `server/`.
+# Deployment guide
+
+This repository contains a Vite React frontend (root) and a Node/Express backend in `server/`.
 
 Recommended approach:
 - Deploy the frontend to Vercel (static build).
@@ -12,21 +15,23 @@ Vercel setup (frontend):
    - Build Command: `npm run build`
    - Output Directory: `dist`
 3. Environment variables (Vercel > Settings > Environment Variables):
-   - `VITE_API_BASE` = `https://<your-backend-url>`
+   - `VITE_BACKEND_URL` = `https://<your-backend-url>` (the public URL of your deployed backend API on Render).
 4. Deploy. Vercel will run install and build and publish the `dist` folder.
 
-Backend deployment (separate):
-- Deploy to Render/Railway/Heroku. Set these env vars on the host:
-  - `MONGO_URI` = MongoDB connection string
-  - `JWT_SECRET` = JWT signing secret
-  - `PORT` = host default or leave unset
+Backend deployment (Render):
+- Deploy the backend in the `server/` folder to Render as a Node service.
+   Set these environment variables on Render:
+   - `MONGO_URL` = your MongoDB Atlas connection string (preferred; otherwise an in-memory DB will be used which is NOT persistent).
+   - `JWT_SECRET` = your JWT signing secret (long random string).
+   - `CLIENT_URL` = your Vercel frontend URL (e.g. https://your-project.vercel.app) — used for CORS.
+   - (PORT is provided by Render automatically; server defaults to 5000 if not set.)
 
 CORS and API base:
 - Ensure the backend allows requests from your Vercel domain (or leave CORS open).
-- Point `VITE_API_BASE` in Vercel to your backend public URL.
+ - Point `VITE_BACKEND_URL` in Vercel to your backend public URL.
 
 Notes:
-- `.vercelignore` added to skip `server/` and `node_modules` when deploying to Vercel.
+- `.vercelignore` should include `server/` so Vercel won't try to deploy the backend there.
 - `vercel.json` added to specify static build and SPA routing.
 
 Local test commands:

@@ -1,8 +1,8 @@
 import { getToken } from './auth'
 
-// Default API base points to backend server. When running frontend dev server
-// you may want to change this to 'http://localhost:4000' or set VITE_API_BASE.
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
+// Default API base points to backend server. During development use localhost:5000
+// In production set VITE_BACKEND_URL in Vercel to your Render backend URL.
+const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
 
 export async function apiFetch(path, opts = {}){
   const headers = opts.headers || {}
