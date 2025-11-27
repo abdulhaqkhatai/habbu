@@ -13,7 +13,8 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/marksdb'
+const MONGO_URI = process.env.MONGO_URL || process.env.MONGO_URI || 'mongodb://localhost:27017/marksdb'
+const CLIENT_URL = process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || '*'
 
 async function connectDB() {
   try {
@@ -65,6 +66,9 @@ async function start() {
   }
 
   // Register routes after DB is ready
+  // allow CORS from CLIENT_URL (set this to your Vercel app or allow all during dev)
+  app.use(cors({ origin: CLIENT_URL }))
+
   app.use('/api/auth', authRoutes)
   app.use('/api/tests', testsRoutes)
   app.get('/', (req, res) => res.send({ ok: true }))
