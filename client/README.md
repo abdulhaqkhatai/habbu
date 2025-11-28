@@ -11,7 +11,7 @@ Features:
 Getting started (Windows PowerShell):
 
 ```powershell
-cd d:\coding\marksAnalys
+cd d:\coding\marksAnalys\client
 npm install
 npm run dev
 ```

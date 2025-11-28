@@ -38,3 +38,5 @@ jest/cache/
 .sass-cache/
 *.tgz
 server/node_modules/
+client/node_modules/
+client/.env
