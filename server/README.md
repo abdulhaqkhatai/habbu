@@ -11,7 +11,7 @@ Setup (Windows PowerShell):
 ```powershell
 cd d:\coding\marksAnalys\server
 copy .env.example .env
-# Edit .env and set MONGO_URI (the provided URI is already in .env.example)
+# Edit .env and set MONGO_URL (the provided URI is already in .env.example)
 npm install
 npm run dev
 ```
@@ -26,4 +26,4 @@ Endpoints:
 
 Notes:
 - Replace `JWT_SECRET` with a strong secret in production.
-- The provided connection string can be put into `MONGO_URI` in `.env`.
+- The provided connection string can be put into `MONGO_URL` in `.env`.

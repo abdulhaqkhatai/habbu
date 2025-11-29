@@ -16,17 +16,41 @@ app.use(express.json())
 const MONGO_URI = process.env.MONGO_URL || process.env.MONGO_URI || 'mongodb://localhost:27017/marksdb'
 const CLIENT_URL = process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || '*'
 
+function redactUri(uri){
+  if(!uri) return 'none'
+  try{
+    // remove credentials from uri for safe logging
+    return uri.replace(/:\/\/.+?:.+?@/, '://<REDACTED>@')
+  }catch(e){ return uri }
+}
+
 async function connectDB() {
-  try {
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000
-    })
-    console.log('MongoDB connected')
-    return true
-  } catch (err) {
-    console.log('Atlas connection failed, falling back to in-memory MongoDB...')
+  if(!process.env.MONGO_URL && !process.env.MONGO_URI){
+    console.warn('MONGO_URL not set — will attempt local/default or in-memory fallback')
+  }
+
+  const maxAttempts = 3
+  let attempt = 0
+  while(attempt < maxAttempts){
+    attempt++
+    try {
+      console.log(`Attempt ${attempt}/${maxAttempts} to connect to MongoDB: ${redactUri(MONGO_URI)}`)
+      await mongoose.connect(MONGO_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverSelectionTimeoutMS: 5000
+      })
+      console.log('MongoDB connected')
+      return true
+    } catch (err) {
+      console.warn(`MongoDB connect attempt ${attempt} failed: ${err && err.message ? err.message : err}`)
+      if(attempt < maxAttempts){
+        const waitMs = 1000 * attempt
+        console.log(`Waiting ${waitMs}ms then retrying...`)
+        await new Promise(r=>setTimeout(r, waitMs))
+        continue
+      }
+      console.log('Atlas connection failed after retries, falling back to in-memory MongoDB...')
     try {
       const mongod = await MongoMemoryServer.create()
       const uri = mongod.getUri()
@@ -37,7 +61,7 @@ async function connectDB() {
       console.log('Connected to in-memory MongoDB (for local development)')
       return true
     } catch (err2) {
-      console.error('MongoDB connection error:')
+      console.error('MongoDB connection error during in-memory startup:')
       console.error(err2 && err2.stack ? err2.stack : err2)
       return false
     }
