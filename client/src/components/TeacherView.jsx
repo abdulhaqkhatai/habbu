@@ -20,14 +20,28 @@ export default function TeacherView(){
     }catch(e){ return null }
   })
   const [editingRows, setEditingRows] = useState({})
+  const [loading, setLoading] = useState(true)
 
   useEffect(()=>{
     // load from API
     let mounted = true
-    apiFetch('/api/tests').then(data=>{
-      if(!mounted) return
-      if(Array.isArray(data)) setTests(data.map(t=> ({ ...t, id: t._id })))
-    }).catch(err=> console.error(err))
+    // Delay loading slightly to not compete with login
+    const timer = setTimeout(() => {
+      apiFetch('/api/tests').then(data=>{
+        if(!mounted) return
+        if(Array.isArray(data)) setTests(data.map(t=> ({ ...t, id: t._id })))
+        setLoading(false)
+      }).catch(err=> {
+        console.error(err)
+        setLoading(false)
+      })
+    }, 500) // 500ms delay
+
+    return ()=> {
+      mounted = false
+      clearTimeout(timer)
+    }
+  },[])
     return ()=> mounted = false
   },[])
 
@@ -215,7 +229,7 @@ export default function TeacherView(){
 
       <section className="card">
         <h2>Marks (by Month)</h2>
-        {tests.length===0 && <p>No marks yet.</p>}
+        {loading ? <p>Loading marks...</p> : tests.length===0 && <p>No marks yet.</p>}
         {(() => {
           // transform tests into per-subject entries and group by month
           const entries = []

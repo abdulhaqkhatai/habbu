@@ -7,14 +7,26 @@ import { SUBJECTS } from '../utils/subjects'
 export default function StudentView(){
   const [tests, setTests] = useState([])
   const [selectedMonth, setSelectedMonth] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(()=>{
     let mounted = true
-    apiFetch('/api/tests').then(data=>{
-      if(!mounted) return
-      if(Array.isArray(data)) setTests(data.map(t=> ({ ...t, id: t._id })))
-    }).catch(err=> console.error(err))
-    return ()=> mounted = false
+    // Delay loading slightly to not compete with login
+    const timer = setTimeout(() => {
+      apiFetch('/api/tests').then(data=>{
+        if(!mounted) return
+        if(Array.isArray(data)) setTests(data.map(t=> ({ ...t, id: t._id })))
+        setLoading(false)
+      }).catch(err=> {
+        console.error(err)
+        setLoading(false)
+      })
+    }, 500) // 500ms delay
+
+    return ()=> {
+      mounted = false
+      clearTimeout(timer)
+    }
   },[])
 
   function doLogout(){
@@ -132,7 +144,7 @@ export default function StudentView(){
 
       <section className="card">
           <h2>Marks (by Month)</h2>
-          {tests.length===0 && <p>No marks yet.</p>}
+          {loading ? <p>Loading marks...</p> : tests.length===0 && <p>No marks yet.</p>}
           {(() => {
             if(!months.length) return <p>No marks yet.</p>
 
