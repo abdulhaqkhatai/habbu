@@ -265,25 +265,17 @@ export default function TeacherView(){
 
           function prevMonth(){
             if(!months.length) return
-            const cur = selectedMonth || months[0]
-            const idx = months.indexOf(cur)
-            const nextIdx = idx === -1 ? 0 : idx + 1
-            if(nextIdx < months.length) setSelectedMonth(months[nextIdx])
+            setSelectedMonth(months[months.length - 1])
           }
 
           function nextMonth(){
             if(!months.length) return
-            const cur = selectedMonth || months[0]
-            const idx = months.indexOf(cur)
-            const prevIdx = idx === -1 ? 0 : idx - 1
-            if(prevIdx >= 0){
-              const key = months[prevIdx]
-              // prevent navigating to future months beyond current month
-              const now = new Date()
-              const currentKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`
-              if(key > currentKey) return
-              setSelectedMonth(key)
-            }
+            const key = months[0]
+            // prevent navigating to future months beyond current month
+            const now = new Date()
+            const currentKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`
+            if(key > currentKey) return
+            setSelectedMonth(key)
           }
 
           if(!months.length) return <p>No marks yet.</p>
@@ -296,18 +288,16 @@ export default function TeacherView(){
                 <button onClick={prevMonth} aria-label="previous" disabled={(() => {
                   if(!months.length) return true
                   const cur = selectedMonth || months[0]
-                  const idx = months.indexOf(cur)
-                  return idx === -1 || idx === months.length-1
+                  return cur === months[months.length - 1]
                 })()}>&lt;</button>
                 <strong style={{ minWidth:220, textAlign:'center' }}>{toReadable(selectedMonth || months[0])}</strong>
                 <button onClick={nextMonth} aria-label="next" disabled={(() => {
                   if(!months.length) return true
                   const cur = selectedMonth || months[0]
-                  const idx = months.indexOf(cur)
-                  if(idx <= 0) return true
+                  if(cur === months[0]) return true
                   const now = new Date()
                   const currentKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`
-                  return (cur >= currentKey)
+                  return months[0] > currentKey
                 })()}>&gt;</button>
               </div>
               <table className="table">
