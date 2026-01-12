@@ -100,13 +100,13 @@ export default function TeacherView(){
 
   // compute stats only for the selected month (if set), otherwise use all tests
   const filteredTests = React.useMemo(() => {
-    if(!selectedMonth) return tests
+    if (!tests.length || !selectedMonth) return []
     return tests.filter(t => {
       const d = new Date(t.date)
       const monKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
       return monKey === selectedMonth
     })
-  }, [tests, selectedMonth])
+  }, [tests.length, selectedMonth]) // Optimize dependencies
 
   const stats = weeklyAndMonthlyStats(filteredTests)
   // monthlyTrend: compute across all tests (history), used to show month-by-month trend

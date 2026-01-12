@@ -34,8 +34,9 @@ export default function StudentView(){
     window.location.href = '/login'
   }
 
-  // prepare month-grouped entries once
+  // prepare month-grouped entries once - optimize with better memoization
   const entries = React.useMemo(() => {
+    if (!tests.length) return []
     const arr = []
     tests.forEach(t => {
       const id = t.id || t._id
@@ -49,15 +50,16 @@ export default function StudentView(){
       })
     })
     return arr
-  }, [tests])
+  }, [tests.length]) // Only depend on tests length, not full tests array
 
   const grouped = React.useMemo(() => {
+    if (!entries.length) return {}
     return entries.reduce((acc, e) => {
       acc[e.monthKey] = acc[e.monthKey] || []
       acc[e.monthKey].push(e)
       return acc
     }, {})
-  }, [entries])
+  }, [entries.length]) // Only depend on entries length
 
   const months = React.useMemo(() => Object.keys(grouped).sort((a,b)=>b.localeCompare(a)), [grouped])
 
