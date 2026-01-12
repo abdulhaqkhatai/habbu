@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useState, useEffect } from 'react'
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { getCurrentUser } from './utils/auth'
 
+// Dark mode and dark theme support
 // Lazy load components for better performance
 const Login = lazy(() => import('./components/Login'))
 const TeacherView = lazy(() => import('./components/TeacherView'))
