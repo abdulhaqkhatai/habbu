@@ -190,7 +190,7 @@ export default function TeacherView(){
     })
     const months = Array.from(new Set(entries)).sort((a,b)=>b.localeCompare(a))
     if(months.length && !selectedMonth) setSelectedMonth(months[0])
-  }, [tests])
+  }, [tests, selectedMonth])
 
   return (
     <div className="page">
@@ -252,9 +252,6 @@ export default function TeacherView(){
           }, {})
 
           const months = Object.keys(grouped).sort((a,b)=>b.localeCompare(a))
-
-          // initialize selectedMonth to latest available month
-          if(months.length && !selectedMonth) setSelectedMonth(months[0])
 
           function toReadable(mKey){
             try{
