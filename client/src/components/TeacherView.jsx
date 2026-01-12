@@ -267,14 +267,6 @@ export default function TeacherView(){
             if(!months.length) return
             const cur = selectedMonth || months[0]
             const idx = months.indexOf(cur)
-            const nextIdx = idx === -1 ? 0 : idx + 1
-            if(nextIdx < months.length) setSelectedMonth(months[nextIdx])
-          }
-
-          function nextMonth(){
-            if(!months.length) return
-            const cur = selectedMonth || months[0]
-            const idx = months.indexOf(cur)
             const prevIdx = idx === -1 ? 0 : idx - 1
             if(prevIdx >= 0){
               const key = months[prevIdx]
@@ -284,6 +276,14 @@ export default function TeacherView(){
               if(key > currentKey) return
               setSelectedMonth(key)
             }
+          }
+
+          function nextMonth(){
+            if(!months.length) return
+            const cur = selectedMonth || months[0]
+            const idx = months.indexOf(cur)
+            const nextIdx = idx === -1 ? 0 : idx + 1
+            if(nextIdx < months.length) setSelectedMonth(months[nextIdx])
           }
 
           if(!months.length) return <p>No marks yet.</p>
