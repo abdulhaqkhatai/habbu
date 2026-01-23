@@ -1,12 +1,9 @@
-import { getToken } from './auth'
-
-// API base reads from Vercel/Netlify environment: VITE_API_URL
-// Set `VITE_API_URL` in your deployment to the backend base (e.g. https://habbu.onrender.com)
 const API_BASE = import.meta.env.VITE_API_URL
 
 export async function apiFetch(path, opts = {}) {
   const headers = opts.headers || {}
-  const token = getToken()
+  // Break circular dependency with auth.js by reading token directly
+  const token = localStorage.getItem('ma_token')
   if (token) headers['Authorization'] = `Bearer ${token}`
   if (!headers['Content-Type'] && !(opts.body instanceof FormData)) headers['Content-Type'] = 'application/json'
   const base = API_BASE || ''

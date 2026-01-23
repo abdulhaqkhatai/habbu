@@ -57,10 +57,10 @@ export default function Login({ darkMode, setDarkMode }) {
         <p className="subtitle">Teacher and Student portal — weekly & monthly stats</p>
         <form onSubmit={handleSubmit} className="login-form">
           <label className="field">Username
-            <input className="input" value={username} onChange={e => setUsername(e.target.value)} placeholder="e.g. student" disabled={loading} />
+            <input className="input" value={username} onChange={e => setUsername(e.target.value)} placeholder="e.g. student" disabled={loading} autoComplete="username" />
           </label>
           <label className="field">Password
-            <input className="input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="your password" disabled={loading} />
+            <input className="input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="your password" disabled={loading} autoComplete="current-password" />
           </label>
           {error && <div className="error">{error}</div>}
           <div className="actions">
