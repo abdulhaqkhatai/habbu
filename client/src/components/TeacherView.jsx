@@ -203,6 +203,13 @@ export default function TeacherView({ darkMode, setDarkMode }) {
     }
   }, [allTimeStats, selectedYear])
 
+  function toReadable(mKey) {
+    try {
+      const d = new Date(mKey + '-01')
+      return d.toLocaleString(undefined, { month: 'long', year: 'numeric' })
+    } catch (e) { return mKey }
+  }
+
   return (
     <div className="page">
       <header className="header">
@@ -276,13 +283,6 @@ export default function TeacherView({ darkMode, setDarkMode }) {
           }, {})
 
           const months = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
-
-          function toReadable(mKey) {
-            try {
-              const d = new Date(mKey + '-01')
-              return d.toLocaleString(undefined, { month: 'long', year: 'numeric' })
-            } catch (e) { return mKey }
-          }
 
           function prevMonth() {
             if (!months.length || !selectedMonth) return
