@@ -381,26 +381,54 @@ export default function TeacherView({ darkMode, setDarkMode }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '24px' }}>
         <section className="card">
-          <h2>Weekly Breakdown <span className="hint" style={{ fontWeight: 'normal', fontSize: '0.8rem' }}>({toReadable(selectedMonth)})</span></h2>
-          {(!weeklyStats || weeklyStats.length === 0) ? <p className="hint">No weekly stats available.</p> : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {weeklyStats.map(w => (
-                <div key={w.week} className="statRow">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <strong>{formatWeekLabel(w.week)}</strong>
-                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{w.stats.overall != null ? `${w.stats.overall}%` : '—'}</span>
+          <h2
+            onClick={() => navigate('/subject-progress')}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <span>Progress by Subject</span>
+            <span style={{ fontSize: '0.9rem', color: 'var(--accent)', fontWeight: 600 }}>View Details &rarr;</span>
+          </h2>
+          {tests.length === 0 ? <p className="hint">No data available yet.</p> : (() => {
+            // Calculate subject progress for current display
+            const subjectStats = SUBJECTS.map(subject => {
+              const subjectTests = tests.filter(t => t.marks && t.marks[subject.key])
+
+              if (subjectTests.length === 0) {
+                return { subject: subject.key, label: subject.label, average: null, count: 0 }
+              }
+
+              const scores = subjectTests.map(t => {
+                const m = t.marks[subject.key]
+                const obtained = m?.obtained ?? m ?? 0
+                const total = m?.total ?? (typeof m === 'number' ? 100 : 0)
+                return total > 0 ? (obtained / total) * 100 : 0
+              })
+
+              const average = scores.reduce((a, b) => a + b, 0) / scores.length
+              return {
+                subject: subject.key,
+                label: subject.label,
+                average: Math.round(average * 10) / 10,
+                count: subjectTests.length
+              }
+            })
+
+            return (
+              <div className="stat-grid">
+                {subjectStats.map(s => (
+                  <div key={s.subject} className="stat-card">
+                    <div className="stat-label">{s.label}</div>
+                    <div className="stat-value" style={{ opacity: s.average != null ? 1 : 0.3 }}>
+                      {s.average != null ? `${s.average}%` : '—'}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: 4 }}>
+                      {s.count} test{s.count !== 1 ? 's' : ''}
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '0.85rem' }}>
-                    {SUBJECTS.map(s => (
-                      <span key={s.key} style={{ color: 'var(--muted)' }}>
-                        {s.label}: <span style={{ color: 'var(--text)' }}>{w.stats.perSubject?.[s.key] != null ? `${w.stats.perSubject[s.key]}%` : '—'}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )
+          })()}
         </section>
 
         <section className="card">
