@@ -23,6 +23,7 @@ export default function TeacherView({ darkMode, setDarkMode }) {
   })
   const [editingRows, setEditingRows] = useState({})
   const [loading, setLoading] = useState(true)
+  const [showConsistencyInfo, setShowConsistencyInfo] = useState(false)
 
   useEffect(() => {
     // load from API
@@ -468,8 +469,31 @@ export default function TeacherView({ darkMode, setDarkMode }) {
           })()}
         </section>
 
-        <section className="card">
-          <h2>Consistency Score</h2>
+        <section className="card" style={{ position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <h2 style={{ margin: 0 }}>Consistency Score</h2>
+            <button
+              onClick={() => setShowConsistencyInfo(true)}
+              style={{
+                background: 'var(--accent-soft)',
+                color: 'var(--accent)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '24px',
+                height: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '0.9rem'
+              }}
+              title="What does this mean?"
+            >
+              ?
+            </button>
+          </div>
+
           {tests.length === 0 ? <p className="hint">No data available.</p> : (
             <div className="stat-grid">
               {calculateConsistency(tests).map(stat => (
@@ -483,6 +507,71 @@ export default function TeacherView({ darkMode, setDarkMode }) {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {showConsistencyInfo && (
+            <div style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '20px'
+            }} onClick={() => setShowConsistencyInfo(false)}>
+              <div style={{
+                background: 'var(--card-bg)',
+                padding: '24px',
+                borderRadius: '12px',
+                maxWidth: '400px',
+                width: '100%',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                position: 'relative'
+              }} onClick={e => e.stopPropagation()}>
+                <h3 style={{ marginTop: 0 }}>Understanding Consistency</h3>
+                <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>
+                  This score measures how much marks vary from test to test (Standard Deviation).
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#22c55e' }}></div>
+                    <div>
+                      <strong>Very Stable</strong> (±0-5%)
+                      <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Excellent consistency.</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--accent)' }}></div>
+                    <div>
+                      <strong>Consistent</strong> (±5-10%)
+                      <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Good steady performance.</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#eab308' }}></div>
+                    <div>
+                      <strong>Variable</strong> (±10-15%)
+                      <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Performance fluctuates noticeably.</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ef4444' }}></div>
+                    <div>
+                      <strong>Volatile</strong> ({'>'}15%)
+                      <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Highly unstable performance.</div>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowConsistencyInfo(false)}
+                  className="btn primary"
+                  style={{ width: '100%', marginTop: '20px' }}
+                >
+                  Got it
+                </button>
+              </div>
             </div>
           )}
         </section>
