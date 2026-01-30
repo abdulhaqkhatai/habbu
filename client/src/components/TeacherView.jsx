@@ -389,12 +389,12 @@ export default function TeacherView({ darkMode, setDarkMode }) {
             <span style={{ fontSize: '0.9rem', color: 'var(--accent)', fontWeight: 600 }}>View Details &rarr;</span>
           </h2>
           {tests.length === 0 ? <p className="hint">No data available yet.</p> : (() => {
-            // Calculate subject progress for current display
+            // Calculate subject progress rate using linear regression
             const subjectStats = SUBJECTS.map(subject => {
               const subjectTests = tests.filter(t => t.marks && t.marks[subject.key])
 
               if (subjectTests.length === 0) {
-                return { subject: subject.key, label: subject.label, average: null, count: 0 }
+                return { subject: subject.key, label: subject.label, progressRate: null, count: 0 }
               }
 
               const scores = subjectTests.map(t => {
@@ -404,25 +404,62 @@ export default function TeacherView({ darkMode, setDarkMode }) {
                 return total > 0 ? (obtained / total) * 100 : 0
               })
 
-              const average = scores.reduce((a, b) => a + b, 0) / scores.length
+              // Calculate progress rate using linear regression
+              let progressRate = null
+              if (scores.length >= 2) {
+                const n = scores.length
+                let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0
+
+                scores.forEach((score, index) => {
+                  sumX += index
+                  sumY += score
+                  sumXY += index * score
+                  sumXX += index * index
+                })
+
+                const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX)
+                progressRate = Math.round(slope * 100) / 100
+              }
+
               return {
                 subject: subject.key,
                 label: subject.label,
-                average: Math.round(average * 10) / 10,
+                progressRate,
                 count: subjectTests.length
               }
             })
+
+            const getProgressColor = (rate) => {
+              if (rate === null) return 'var(--muted)'
+              if (rate > 0) return '#22c55e'
+              if (rate < 0) return '#ef4444'
+              return 'var(--muted)'
+            }
+
+            const getProgressIcon = (rate) => {
+              if (rate === null) return ''
+              if (rate > 0) return '📈 '
+              if (rate < 0) return '📉 '
+              return '➡️ '
+            }
 
             return (
               <div className="stat-grid">
                 {subjectStats.map(s => (
                   <div key={s.subject} className="stat-card">
                     <div className="stat-label">{s.label}</div>
-                    <div className="stat-value" style={{ opacity: s.average != null ? 1 : 0.3 }}>
-                      {s.average != null ? `${s.average}%` : '—'}
+                    <div className="stat-value" style={{
+                      opacity: s.progressRate != null ? 1 : 0.3,
+                      color: getProgressColor(s.progressRate),
+                      fontSize: '1.5rem'
+                    }}>
+                      {s.progressRate != null
+                        ? `${getProgressIcon(s.progressRate)}${s.progressRate > 0 ? '+' : ''}${s.progressRate}%`
+                        : '—'
+                      }
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: 4 }}>
-                      {s.count} test{s.count !== 1 ? 's' : ''}
+                      {s.progressRate != null ? 'per test • ' : ''}{s.count} test{s.count !== 1 ? 's' : ''}
                     </div>
                   </div>
                 ))}
