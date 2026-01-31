@@ -23,3 +23,7 @@ Default accounts seeded in localStorage:
 Notes:
 - Data persists in localStorage of your browser.
 - This is intentionally minimal; improvements: real auth, charts, CSV import/export.
+
+
+update idea:
+
