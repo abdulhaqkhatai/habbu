@@ -209,6 +209,33 @@ export default function StudentView({ darkMode, setDarkMode }) {
         })()}
       </section>
 
+      <section className="card">
+        <h2>Monthly Averages</h2>
+        {(!stats.monthly || stats.monthly.length === 0) ? <p className="hint">No monthly stats for selected month.</p> : (
+          <div>
+            {stats.monthly.map(m => (
+              <div key={m.month} style={{ marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                  <h3 style={{ margin: 0, fontSize: '1rem' }}>Month {m.month}</h3>
+                </div>
+                <div className="stat-grid">
+                  {SUBJECTS.map(s => (
+                    <div key={s.key} className="stat-card">
+                      <div className="stat-label">{s.label}</div>
+                      <div className="stat-value">{m.stats.perSubject?.[s.key] != null ? `${m.stats.perSubject[s.key]}%` : '—'}</div>
+                    </div>
+                  ))}
+                  <div className="stat-card" style={{ background: 'var(--accent-soft)', borderColor: 'var(--accent)' }}>
+                    <div className="stat-label" style={{ color: 'var(--accent)' }}>Month Average</div>
+                    <div className="stat-value" style={{ color: 'var(--accent)' }}>{m.stats.overall != null ? `${m.stats.overall}%` : '—'}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '24px' }}>
         <section className="card">
           <h2
@@ -411,29 +438,6 @@ export default function StudentView({ darkMode, setDarkMode }) {
           )}
         </section>
       </div>
-
-      <section className="card">
-        <h2>Monthly Averages</h2>
-        {(!stats.monthly || stats.monthly.length === 0) ? <p className="hint">No monthly stats for selected month.</p> : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {stats.monthly.map(m => (
-              <div key={m.month} className="statRow">
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <strong>Month {m.month}</strong>
-                  <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{m.stats.overall != null ? `${m.stats.overall}%` : '—'}</span>
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '0.85rem' }}>
-                  {SUBJECTS.map(s => (
-                    <span key={s.key} style={{ color: 'var(--muted)' }}>
-                      {s.label}: <span style={{ color: 'var(--text)' }}>{m.stats.perSubject?.[s.key] != null ? `${m.stats.perSubject[s.key]}%` : '—'}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
 
       <section className="card">
         <h2
