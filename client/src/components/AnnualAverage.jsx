@@ -185,11 +185,11 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
             }
         })
 
-        const bestMonth = monthsWithAvg.length > 0
-            ? monthsWithAvg.sort((a, b) => b.average - a.average)[0]
-            : null
+        const topMonths = monthsWithAvg.length > 0
+            ? monthsWithAvg.sort((a, b) => b.average - a.average).slice(0, 3)
+            : []
 
-        return { topTests, bestMonth }
+        return { topTests, topMonths }
     }, [tests, selectedYear])
 
     function goBack() {
@@ -325,29 +325,40 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
                                 )}
                             </div>
 
-                            {/* Best Month */}
+                            {/* Top 3 Months */}
                             <div>
-                                <h3 style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--accent)' }}>Best Month</h3>
-                                {!bestPerformance.bestMonth ? (
+                                <h3 style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--accent)' }}>Top 3 Months</h3>
+                                {bestPerformance.topMonths.length === 0 ? (
                                     <p className="hint">No monthly data available.</p>
                                 ) : (
-                                    <div style={{
-                                        padding: '24px',
-                                        background: 'linear-gradient(135deg, var(--accent-soft) 0%, var(--card-bg) 100%)',
-                                        border: '2px solid var(--accent)',
-                                        borderRadius: '12px',
-                                        textAlign: 'center'
-                                    }}>
-                                        <div style={{ fontSize: '3rem', marginBottom: '8px' }}>📅</div>
-                                        <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--accent)', marginBottom: '8px' }}>
-                                            {bestPerformance.bestMonth.month}
-                                        </div>
-                                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text)', marginBottom: '8px' }}>
-                                            {bestPerformance.bestMonth.average}%
-                                        </div>
-                                        <div style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
-                                            Average across {bestPerformance.bestMonth.testCount} test{bestPerformance.bestMonth.testCount !== 1 ? 's' : ''}
-                                        </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {bestPerformance.topMonths.map((monthData, index) => (
+                                            <div key={monthData.monthKey} style={{
+                                                padding: '16px',
+                                                background: index === 0 ? 'linear-gradient(135deg, var(--accent-soft) 0%, var(--card-bg) 100%)' : 'var(--bg)',
+                                                border: `2px solid ${index === 0 ? 'var(--accent)' : 'var(--border)'}`,
+                                                borderRadius: '12px'
+                                            }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <span style={{ fontSize: '1.5rem' }}>
+                                                            {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                                                        </span>
+                                                        <div>
+                                                            <div style={{ fontWeight: 'bold', color: 'var(--text)', fontSize: '1.1rem' }}>
+                                                                {monthData.month}
+                                                            </div>
+                                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                                                                {monthData.testCount} test{monthData.testCount !== 1 ? 's' : ''}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: index === 0 ? 'var(--accent)' : 'var(--text)' }}>
+                                                        {monthData.average}%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                             </div>
