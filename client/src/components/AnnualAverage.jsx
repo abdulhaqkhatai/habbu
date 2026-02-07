@@ -91,6 +91,107 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
         return chartData
     }, [tests, selectedYear])
 
+    // Calculate top 3 tests and best month for the selected year
+    const bestPerformance = useMemo(() => {
+        if (!selectedYear || !tests.length) return { topTests: [], bestMonth: null }
+
+        // Filter tests for selected year
+        const yearTests = tests.filter(t => {
+            const d = new Date(t.date)
+            return String(d.getFullYear()) === String(selectedYear)
+        })
+
+        if (yearTests.length === 0) return { topTests: [], bestMonth: null }
+
+        // Calculate overall percentage for each test
+        const testsWithScores = yearTests.map(test => {
+            const subjects = Object.entries(test.marks || {})
+            if (subjects.length === 0) return null
+
+            let totalScore = 0
+            let count = 0
+
+            subjects.forEach(([subKey, m]) => {
+                const obtained = m?.obtained ?? m ?? 0
+                const total = m?.total ?? (typeof m === 'number' ? 100 : 0)
+                if (total > 0) {
+                    totalScore += (obtained / total) * 100
+                    count++
+                }
+            })
+
+            const overallPct = count > 0 ? totalScore / count : 0
+
+            // Find the best subject in this test
+            let bestSubject = null
+            let bestSubjectScore = 0
+            subjects.forEach(([subKey, m]) => {
+                const obtained = m?.obtained ?? m ?? 0
+                const total = m?.total ?? (typeof m === 'number' ? 100 : 0)
+                const pct = total > 0 ? (obtained / total) * 100 : 0
+                if (pct > bestSubjectScore) {
+                    bestSubjectScore = pct
+                    const subjectObj = SUBJECTS.find(s => s.key === subKey)
+                    bestSubject = { name: subjectObj?.label || subKey, score: pct, obtained, total }
+                }
+            })
+
+            return {
+                ...test,
+                overallPct: Math.round(overallPct * 10) / 10,
+                bestSubject
+            }
+        }).filter(t => t !== null)
+
+        // Get top 3 tests
+        const topTests = testsWithScores
+            .sort((a, b) => b.overallPct - a.overallPct)
+            .slice(0, 3)
+
+        // Calculate best month
+        const monthlyData = {}
+        yearTests.forEach(t => {
+            const d = new Date(t.date)
+            const monthKey = d.getMonth()
+            if (!monthlyData[monthKey]) {
+                monthlyData[monthKey] = { tests: [], month: monthKey }
+            }
+            monthlyData[monthKey].tests.push(t)
+        })
+
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+        const monthsWithAvg = Object.values(monthlyData).map(({ month, tests: monthTests }) => {
+            let totalScore = 0
+            let count = 0
+
+            monthTests.forEach(test => {
+                Object.entries(test.marks || {}).forEach(([_, m]) => {
+                    const obtained = m?.obtained ?? m ?? 0
+                    const total = m?.total ?? (typeof m === 'number' ? 100 : 0)
+                    if (total > 0) {
+                        totalScore += (obtained / total) * 100
+                        count++
+                    }
+                })
+            })
+
+            const avg = count > 0 ? totalScore / count : 0
+            return {
+                month: monthNames[month],
+                monthKey: month,
+                average: Math.round(avg * 10) / 10,
+                testCount: monthTests.length
+            }
+        })
+
+        const bestMonth = monthsWithAvg.length > 0
+            ? monthsWithAvg.sort((a, b) => b.average - a.average)[0]
+            : null
+
+        return { topTests, bestMonth }
+    }, [tests, selectedYear])
+
     function goBack() {
         if (user?.role === 'teacher') navigate('/teacher')
         else navigate('/student')
@@ -171,6 +272,84 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
                                 <div className="stat-value" style={{ fontSize: '3.5rem', textShadow: '0 4px 12px var(--accent-soft)' }}>
                                     {currentYearStats?.stats.overall != null ? `${currentYearStats.stats.overall}%` : '—'}
                                 </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="card">
+                        <h2>🏆 Best Performance of {selectedYear}</h2>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: '20px' }}>
+                            {/* Top 3 Tests */}
+                            <div>
+                                <h3 style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--accent)' }}>Top 3 Tests</h3>
+                                {bestPerformance.topTests.length === 0 ? (
+                                    <p className="hint">No tests available for this year.</p>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {bestPerformance.topTests.map((test, index) => (
+                                            <div key={test.id} style={{
+                                                padding: '16px',
+                                                background: index === 0 ? 'linear-gradient(135deg, var(--accent-soft) 0%, var(--card-bg) 100%)' : 'var(--bg)',
+                                                border: `2px solid ${index === 0 ? 'var(--accent)' : 'var(--border)'}`,
+                                                borderRadius: '12px',
+                                                position: 'relative'
+                                            }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <span style={{ fontSize: '1.5rem' }}>
+                                                            {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                                                        </span>
+                                                        <div>
+                                                            <div style={{ fontWeight: 'bold', color: 'var(--text)' }}>
+                                                                {test.bestSubject?.name || 'Test'}
+                                                            </div>
+                                                            <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                                                                {new Date(test.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: index === 0 ? 'var(--accent)' : 'var(--text)' }}>
+                                                            {test.overallPct}%
+                                                        </div>
+                                                        {test.bestSubject && (
+                                                            <div style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>
+                                                                {Math.round(test.bestSubject.obtained)}/{test.bestSubject.total}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Best Month */}
+                            <div>
+                                <h3 style={{ fontSize: '1.1rem', marginBottom: '16px', color: 'var(--accent)' }}>Best Month</h3>
+                                {!bestPerformance.bestMonth ? (
+                                    <p className="hint">No monthly data available.</p>
+                                ) : (
+                                    <div style={{
+                                        padding: '24px',
+                                        background: 'linear-gradient(135deg, var(--accent-soft) 0%, var(--card-bg) 100%)',
+                                        border: '2px solid var(--accent)',
+                                        borderRadius: '12px',
+                                        textAlign: 'center'
+                                    }}>
+                                        <div style={{ fontSize: '3rem', marginBottom: '8px' }}>📅</div>
+                                        <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--accent)', marginBottom: '8px' }}>
+                                            {bestPerformance.bestMonth.month}
+                                        </div>
+                                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text)', marginBottom: '8px' }}>
+                                            {bestPerformance.bestMonth.average}%
+                                        </div>
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
+                                            Average across {bestPerformance.bestMonth.testCount} test{bestPerformance.bestMonth.testCount !== 1 ? 's' : ''}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </section>
