@@ -98,7 +98,7 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
 
     // Calculate top 3 tests and best month for the selected year
     const bestPerformance = useMemo(() => {
-        if (!selectedYear || !tests.length) return { topTests: [], bestMonth: null }
+        if (!selectedYear || !tests.length) return { topTests: [], topMonths: [] }
 
         // Filter tests for selected year
         const yearTests = tests.filter(t => {
@@ -106,7 +106,7 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
             return String(d.getFullYear()) === String(selectedYear)
         })
 
-        if (yearTests.length === 0) return { topTests: [], bestMonth: null }
+        if (yearTests.length === 0) return { topTests: [], topMonths: [] }
 
         // Calculate overall percentage for each test
         const testsWithScores = yearTests.map(test => {
