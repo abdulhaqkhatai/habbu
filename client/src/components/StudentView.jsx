@@ -21,7 +21,7 @@ export default function StudentView({ darkMode, setDarkMode }) {
         if (Array.isArray(data)) setTests(data.map(t => ({ ...t, id: t._id })))
         setLoading(false)
       }).catch(err => {
-        ikconsole.error(err)
+        console.error(err)
         setLoading(false)
       })
     }, 100) // Reduced from 500ms
