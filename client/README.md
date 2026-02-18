@@ -14,7 +14,7 @@ Getting started (Windows PowerShell):
 cd d:\coding\marksAnalys\client
 npm install
 npm run dev
-```
+`````
 
 Default accounts seeded in localStorage:
 - teacher / teacher (role: teacher)
