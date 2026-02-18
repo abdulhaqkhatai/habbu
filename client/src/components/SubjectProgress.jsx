@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { weeklyAndMonthlyStats } from '../utils/stats'
 import { apiFetch } from '../utils/api'
-import { getSubjects } from '../utils/subjects'
+import { SUBJECTS } from '../utils/subjects'
 import { getCurrentUser } from '../utils/auth'
 
 export default function SubjectProgress({ darkMode, setDarkMode }) {
@@ -11,9 +11,6 @@ export default function SubjectProgress({ darkMode, setDarkMode }) {
     const [selectedSubject, setSelectedSubject] = useState(null)
     const navigate = useNavigate()
     const user = getCurrentUser()
-
-    // Dynamic subjects from class data
-    const SUBJECTS = getSubjects()
 
     useEffect(() => {
         let mounted = true

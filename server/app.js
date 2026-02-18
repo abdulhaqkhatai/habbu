@@ -6,7 +6,6 @@ const cors = require('cors')
 
 const authRoutes = require('./routes/auth')
 const testsRoutes = require('./routes/tests')
-const classesRoutes = require('./routes/classes')
 const User = require('./models/User')
 const bcrypt = require('bcryptjs')
 
@@ -113,7 +112,6 @@ async function start() {
 
   app.use('/api/auth', authRoutes)
   app.use('/api/tests', testsRoutes)
-  app.use('/api/classes', classesRoutes)
   app.get('/', (req, res) => res.send({ ok: true }))
 
   // Seed users asynchronously (don't block startup)

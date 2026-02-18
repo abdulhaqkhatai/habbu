@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { weeklyAndMonthlyStats, calculateConsistency } from '../utils/stats'
-import { logout, getCurrentUser, getClassData } from '../utils/auth'
+import { logout, getCurrentUser } from '../utils/auth'
 import { apiFetch } from '../utils/api'
-import { getSubjects, getSubjectKeys } from '../utils/subjects'
+import { SUBJECTS, SUBJECT_KEYS } from '../utils/subjects'
 
 export default function TeacherView({ darkMode, setDarkMode }) {
   const navigate = useNavigate()
   const [tests, setTests] = useState([])
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
   const [weekNum, setWeekNum] = useState('1')
-
-  // Dynamic subjects from class data
-  const SUBJECTS = getSubjects()
-  const SUBJECT_KEYS = getSubjectKeys()
-  const classData = getClassData()
-
-  const [subject, setSubject] = useState(SUBJECT_KEYS[0] || '')
+  const [subject, setSubject] = useState(SUBJECT_KEYS[0])
   const emptyMarks = SUBJECT_KEYS.reduce((acc, k) => (acc[k] = { obtained: '', total: '' }, acc), {})
   const [marks, setMarks] = useState(emptyMarks)
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -224,10 +218,7 @@ export default function TeacherView({ darkMode, setDarkMode }) {
   return (
     <div className="page">
       <header className="header">
-        <div>
-          <h1>Teacher Dashboard</h1>
-          {classData && <p className="hint" style={{ margin: '4px 0 0 0', fontSize: '0.9rem' }}>Class: {classData.name}</p>}
-        </div>
+        <h1>Teacher Dashboard</h1>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <span style={{ fontWeight: 500, color: 'var(--muted)' }}>{getCurrentUser()?.username}</span>
           <button onClick={() => setDarkMode(!darkMode)} className="theme-toggle" title={darkMode ? 'Light Mode' : 'Dark Mode'} style={{ position: 'static' }}>
