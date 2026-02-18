@@ -5,7 +5,8 @@ import { apiFetch } from '../utils/api'
 import { SUBJECTS } from '../utils/subjects'
 import { getCurrentUser } from '../utils/auth'
 import {
-    LineChart, Line, BarChart, Bar,
+    LineChart, Line, BarChart, Bar, AreaChart, Area,
+    RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
     XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
 
@@ -208,7 +209,9 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
 
     const chartTypes = [
         { name: 'Line Chart', description: 'Monthly Progression' },
-        { name: 'Bar Chart', description: 'Monthly Comparison' }
+        { name: 'Bar Chart', description: 'Monthly Comparison' },
+        { name: 'Area Chart', description: 'Trend Visualization' },
+        { name: 'Radar Chart', description: 'Subject Balance' }
     ]
 
     function goBack() {
@@ -276,7 +279,7 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
                                     <div key={s.key} className="stat-card">
                                         <div className="stat-label">{s.label}</div>
                                         <div className="stat-value" style={{ opacity: score != null ? 1 : 0.3 }}>
-                                            {score != null ? `${score}% ` : '—'}
+                                            {score != null ? `${score}%` : '—'}
                                         </div>
                                     </div>
                                 )
@@ -289,7 +292,7 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
                             }}>
                                 <div className="stat-label" style={{ color: 'var(--accent)', fontSize: '1rem' }}>Overall Year Average</div>
                                 <div className="stat-value" style={{ fontSize: '3.5rem', textShadow: '0 4px 12px var(--accent-soft)' }}>
-                                    {currentYearStats?.stats.overall != null ? `${currentYearStats.stats.overall}% ` : '—'}
+                                    {currentYearStats?.stats.overall != null ? `${currentYearStats.stats.overall}%` : '—'}
                                 </div>
                             </div>
                         </div>
@@ -309,7 +312,7 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
                                             <div key={test.id} style={{
                                                 padding: '16px',
                                                 background: index === 0 ? 'linear-gradient(135deg, var(--accent-soft) 0%, var(--card-bg) 100%)' : 'var(--bg)',
-                                                border: `2px solid ${index === 0 ? 'var(--accent)' : 'var(--border)'} `,
+                                                border: `2px solid ${index === 0 ? 'var(--accent)' : 'var(--border)'}`,
                                                 borderRadius: '12px',
                                                 position: 'relative'
                                             }}>
@@ -355,7 +358,7 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
                                             <div key={monthData.monthKey} style={{
                                                 padding: '16px',
                                                 background: index === 0 ? 'linear-gradient(135deg, var(--accent-soft) 0%, var(--card-bg) 100%)' : 'var(--bg)',
-                                                border: `2px solid ${index === 0 ? 'var(--accent)' : 'var(--border)'} `,
+                                                border: `2px solid ${index === 0 ? 'var(--accent)' : 'var(--border)'}`,
                                                 borderRadius: '12px'
                                             }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -427,7 +430,7 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
                             </div>
                         </div>
 
-                        {monthlyChartData.length === 0 ? (
+                        {(monthlyChartData.length === 0 && currentChartIndex !== 3) || (radarChartData.length === 0 && currentChartIndex === 3) ? (
                             <p className="hint">No monthly data available for {selectedYear}. Add marks across different months to see the progression.</p>
                         ) : (
                             <div style={{ width: '100%', height: 400, marginTop: 20 }}>
@@ -453,7 +456,7 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
                                                     borderRadius: '8px',
                                                     color: 'var(--text)'
                                                 }}
-                                                formatter={(value) => `${value}% `}
+                                                formatter={(value) => `${value}%`}
                                             />
                                             <Legend
                                                 wrapperStyle={{ fontSize: '0.875rem', color: 'var(--text)' }}
@@ -497,7 +500,7 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
                                                     borderRadius: '8px',
                                                     color: 'var(--text)'
                                                 }}
-                                                formatter={(value) => `${value}% `}
+                                                formatter={(value) => `${value}%`}
                                             />
                                             <Legend
                                                 wrapperStyle={{ fontSize: '0.875rem', color: 'var(--text)' }}
@@ -514,6 +517,85 @@ export default function AnnualAverage({ darkMode, setDarkMode }) {
                                                 )
                                             })}
                                         </BarChart>
+                                    )}
+
+                                    {currentChartIndex === 2 && (
+                                        <AreaChart data={monthlyChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                                            <XAxis
+                                                dataKey="month"
+                                                stroke="var(--text)"
+                                                style={{ fontSize: '0.875rem' }}
+                                            />
+                                            <YAxis
+                                                domain={[0, 100]}
+                                                stroke="var(--text)"
+                                                style={{ fontSize: '0.875rem' }}
+                                                label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', style: { fill: 'var(--text)' } }}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    background: 'var(--card-bg)',
+                                                    border: '1px solid var(--border)',
+                                                    borderRadius: '8px',
+                                                    color: 'var(--text)'
+                                                }}
+                                                formatter={(value) => `${value}%`}
+                                            />
+                                            <Legend
+                                                wrapperStyle={{ fontSize: '0.875rem', color: 'var(--text)' }}
+                                            />
+                                            {SUBJECTS.map((subject, index) => {
+                                                const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
+                                                return (
+                                                    <Area
+                                                        key={subject.key}
+                                                        type="monotone"
+                                                        dataKey={subject.key}
+                                                        name={subject.label}
+                                                        fill={colors[index % colors.length]}
+                                                        stroke={colors[index % colors.length]}
+                                                        fillOpacity={0.6}
+                                                    />
+                                                )
+                                            })}
+                                        </AreaChart>
+                                    )}
+
+                                    {currentChartIndex === 3 && radarChartData.length > 0 && (
+                                        <RadarChart data={radarChartData}>
+                                            <PolarGrid stroke="var(--border)" />
+                                            <PolarAngleAxis
+                                                dataKey="subject"
+                                                stroke="var(--text)"
+                                                style={{ fontSize: '0.875rem' }}
+                                            />
+                                            <PolarRadiusAxis
+                                                angle={90}
+                                                domain={[0, 100]}
+                                                stroke="var(--text)"
+                                                style={{ fontSize: '0.75rem' }}
+                                            />
+                                            <Radar
+                                                name={`${selectedYear} Average`}
+                                                dataKey="score"
+                                                stroke="var(--accent)"
+                                                fill="var(--accent)"
+                                                fillOpacity={0.6}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    background: 'var(--card-bg)',
+                                                    border: '1px solid var(--border)',
+                                                    borderRadius: '8px',
+                                                    color: 'var(--text)'
+                                                }}
+                                                formatter={(value) => `${value}%`}
+                                            />
+                                            <Legend
+                                                wrapperStyle={{ fontSize: '0.875rem', color: 'var(--text)' }}
+                                            />
+                                        </RadarChart>
                                     )}
                                 </ResponsiveContainer>
                             </div>
