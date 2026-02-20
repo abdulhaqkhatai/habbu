@@ -67,7 +67,7 @@ export default function Login({ darkMode, setDarkMode }) {
           color: 'white',
           boxShadow: '0 8px 16px var(--accent-soft)'
         }}>
-          H
+          P
         </div>
         <h1 className="header" style={{ justifyContent: 'center', marginBottom: '8px' }}>
           <span style={{
@@ -77,7 +77,7 @@ export default function Login({ darkMode, setDarkMode }) {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text'
-          }}>habbu</span>
+          }}>pocket class</span>
         </h1>
         <p className="hint" style={{ marginBottom: '32px', fontSize: '1rem' }}>Teacher &amp; Student portal</p>
 
