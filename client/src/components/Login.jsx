@@ -136,7 +136,10 @@ export default function Login({ darkMode, setDarkMode }) {
         }}>
           <div className="card" style={{ padding: '32px', maxWidth: '400px', textAlign: 'center', backgroundColor: 'var(--bg, #fff)' }}>
             <h2 style={{ marginBottom: '16px' }}>Under Maintenance</h2>
-            <p style={{ marginBottom: '24px' }}>the website is under maintainance</p>
+            <p style={{ marginBottom: '16px', color: 'var(--error, #e53e3e)', fontWeight: 600 }}>the website is under maintainance</p>
+            <p style={{ marginBottom: '24px', fontSize: '0.9rem', color: 'var(--text-soft, #666)' }}>
+              This website is created to help small tuition teachers or schools to maintain their student marks and academic records.
+            </p>
             <button className="btn primary" onClick={() => setShowPopup(false)} style={{ padding: '10px 24px' }}>Close</button>
           </div>
         </div>
