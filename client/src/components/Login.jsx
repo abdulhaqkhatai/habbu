@@ -79,10 +79,7 @@ export default function Login({ darkMode, setDarkMode }) {
             backgroundClip: 'text'
           }}>habbu</span>
         </h1>
-        <p className="hint" style={{ marginBottom: '16px', fontSize: '1rem' }}>Teacher &amp; Student portal</p>
-        <p style={{ marginBottom: '32px', fontSize: '0.9rem', color: 'var(--text-soft, #666)' }}>
-          this website is created to help small tution teacher or schools to maintain their student marks and acedemic records
-        </p>
+        <p className="hint" style={{ marginBottom: '32px', fontSize: '1rem' }}>Teacher &amp; Student portal</p>
 
         <form onSubmit={handleSignIn} style={{ textAlign: 'left' }}>
           <div style={{ marginBottom: '20px' }}>
