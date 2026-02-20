@@ -8,6 +8,7 @@ export default function Login({ darkMode, setDarkMode }) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [loadingMessage, setLoadingMessage] = useState('Signing in...')
+  const [showPopup, setShowPopup] = useState(false)
   const loadingTimerRef = useRef(null)
   const nav = useNavigate()
 
@@ -78,7 +79,10 @@ export default function Login({ darkMode, setDarkMode }) {
             backgroundClip: 'text'
           }}>habbu</span>
         </h1>
-        <p className="hint" style={{ marginBottom: '32px', fontSize: '1rem' }}>Teacher &amp; Student portal</p>
+        <p className="hint" style={{ marginBottom: '16px', fontSize: '1rem' }}>Teacher &amp; Student portal</p>
+        <p style={{ marginBottom: '32px', fontSize: '0.9rem', color: 'var(--text-soft, #666)' }}>
+          this website is created to help small tution teacher or schools to maintain their student marks and acedemic records
+        </p>
 
         <form onSubmit={handleSignIn} style={{ textAlign: 'left' }}>
           <div style={{ marginBottom: '20px' }}>
@@ -101,8 +105,8 @@ export default function Login({ darkMode, setDarkMode }) {
           </button>
         </form>
 
-        <p className="hint" style={{ marginTop: '24px', fontSize: '0.8rem' }}>
-          Sign in to access your dashboard.
+        <p className="hint" style={{ marginTop: '24px', fontSize: '0.9rem' }}>
+          Don't have an account? <button type="button" onClick={() => setShowPopup(true)} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', textDecoration: 'underline', padding: 0, font: 'inherit' }}>Sign Up</button>
         </p>
       </div>
 
@@ -119,6 +123,24 @@ export default function Login({ darkMode, setDarkMode }) {
           to { transform: rotate(360deg); }
         }
       `}</style>
+
+      {showPopup && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="card" style={{ padding: '32px', maxWidth: '400px', textAlign: 'center', backgroundColor: 'var(--bg, #fff)' }}>
+            <h2 style={{ marginBottom: '16px' }}>Under Maintenance</h2>
+            <p style={{ marginBottom: '24px' }}>the website is under maintainance</p>
+            <button className="btn primary" onClick={() => setShowPopup(false)} style={{ padding: '10px 24px' }}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
